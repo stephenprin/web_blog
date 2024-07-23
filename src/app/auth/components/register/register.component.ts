@@ -3,16 +3,18 @@ import { Component } from "@angular/core";
 import { FormBuilder, Validators ,ReactiveFormsModule} from "@angular/forms";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { Store } from "@ngrx/store";
-import { register } from "../../store/action";
+import { authAction } from "../../store/action";
 import { RegisterRequestInterface } from "../../types/registerRequest.interface";
-import { selectIsSubmitting } from "../../store/reducer";
-import { AuthStateInterface } from "../../types/authState.interface";
+import { selectIsSubmitting, selectValidationErrors } from "../../store/reducer";
+
 import { AuthService } from "../../services/auth.service";
+import { combineLatest } from "rxjs";
+import { BackendErrorMessagesComponent } from "../../../shared/components/backendErrorMessages/backendErrorMessages.component";
 
 @Component({
     selector: 'register',
     standalone: true,
-     imports: [CommonModule, RouterLink, ReactiveFormsModule],
+     imports: [CommonModule, RouterLink, ReactiveFormsModule,BackendErrorMessagesComponent],
     templateUrl: './register.component.html',
     styleUrl: './register.component.css'
   })
@@ -22,7 +24,12 @@ export class RegisterComponent {
         email:['', Validators.required],
         password: ['', Validators.required],
     });
-    isSubmitting$= this.store.select(selectIsSubmitting)
+    
+    data$ = combineLatest({
+        isSubmitting: this.store.select(selectIsSubmitting),
+        backendErrors: this.store.select(selectValidationErrors)
+    })
+
     constructor(private fb: FormBuilder,
         private store: Store,
      private authService: AuthService,
@@ -30,12 +37,12 @@ export class RegisterComponent {
     ) { }
     
     onSubmit() {
-        console.log('submit', this.form.getRawValue())
+        
         const request:  RegisterRequestInterface = {
             user: this.form.getRawValue()
         }
-        this.store.dispatch(register({ request }))
-        this.authService.register(request).subscribe(res=>console.log(res))
+        this.store.dispatch(authAction.register({ request }))
+        
 
         
     }

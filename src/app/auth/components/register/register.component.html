@@ -1,3 +1,4 @@
+<ng-container *ngIf="data$ | async as data">
 
 <div class="auth-page">
   <div class="container page">
@@ -9,7 +10,8 @@
           <a routerLink="/login">Have an account?</a>
         </p>
 
-        BACKEND ERRORS HERE
+    
+        <backend-error-messages *ngIf="data.backendErrors" [backendErrors]="data.backendErrors"></backend-error-messages>
 
         <form  [formGroup]="form" (ngSubmit)="onSubmit()">
           <fieldset class="form-group mb-3">
@@ -39,7 +41,7 @@
             />
           </fieldset>
 
-          <button type="submit" class="btn mt-3 w-100 m btn-lg btn-success pull-xs-right" [disabled]="isSubmitting$ | async">
+          <button type="submit" class="btn mt-3 w-100 m btn-lg btn-success pull-xs-right" [disabled]="data.isSubmitting">
             Sign Up
           </button>
         </form>
@@ -47,3 +49,5 @@
     </div>
   </div>
 </div>
+
+</ng-container>
