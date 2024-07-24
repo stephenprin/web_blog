@@ -45,4 +45,44 @@ export const redirectAfterRegistrationEffect = createEffect((
         })
     )
 
+}, { functional: true, dispatch: false })
+ 
+
+
+export const loginEffect = createEffect((
+    actions$ = inject(Actions),
+    authService = inject(AuthService),
+    persistence= inject(PersistenceService)
+) => {
+    return actions$.pipe(
+        ofType(authAction.login),
+        switchMap(({ request }) => {
+            return authService.login(request).pipe(
+                map((currentUser: CurrentUserInterface) => {
+                    persistence.set('accessToken', currentUser.token)
+                    return authAction.loginSuccess({ currentUser })
+                }),
+                catchError((errorResponse:HttpErrorResponse) => {
+                    return of(authAction.loginFailure({
+                        errors: errorResponse.error.errors
+                    }))
+                })
+            )
+        })
+    )
+}, { functional: true })
+
+
+
+export const redirectAfterLogicEffect = createEffect((
+    actions$ = inject(Actions),
+    router= inject(Router),
+) => {
+    return actions$.pipe(
+        ofType(authAction.loginSuccess),
+        tap(() => {
+            router.navigateByUrl('/')
+        })
+    )
+
  }, { functional: true, dispatch:false })

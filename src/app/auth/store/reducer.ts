@@ -29,7 +29,25 @@ const authFeature = createFeature({
       isSubmitting: false,
       validationErrors: action.errors,
       isLoading: false,
-    }))
+    })),
+
+    on(authAction.login, (state) => ({
+        ...state,
+        isSubmitting: true,
+        validationErrors: null,
+      })),
+      on(authAction.loginSuccess, (state, action) => ({
+        ...state,
+        isSubmitting: false,
+        currentUser: action.currentUser,
+        isLoading: false,
+      })),
+      on(authAction.loginFailure, (state, action) => ({
+        ...state,
+        isSubmitting: false,
+        validationErrors: action.errors,
+        isLoading: false,
+      }))
   ),
 });
 
